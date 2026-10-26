@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Carnet migraines</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Migraines">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eef0f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11141a" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}
+/* Layout : une colonne façon appli, une question par écran, barre d'onglets en bas au pouce. Couleurs douces (photophobie). */
+:root{
+  --bg:#eef0f3; --surface:#ffffff; --fg:#1c2230; --muted:#5f6779; --line:#d8dce4;
+  --accent:#1f6d76; --accent-fg:#ffffff; --soft:#e2eeef;
+  --i1:#d7a52f; --i2:#de7536; --i3:#c33b48; --none:#7fae8f;
+  --font:"Atkinson Hyperlegible",-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11141a; --surface:#1a1e27; --fg:#e3e6ee; --muted:#959cad; --line:#2b313e;
+  --accent:#62b3bb; --accent-fg:#0d1a1c; --soft:#1d2d30;
+  --i1:#c49a39; --i2:#cc6f3e; --i3:#cc5360; --none:#5f9672; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11141a; --surface:#1a1e27; --fg:#e3e6ee; --muted:#959cad; --line:#2b313e;
+  --accent:#62b3bb; --accent-fg:#0d1a1c; --soft:#1d2d30;
+  --i1:#c49a39; --i2:#cc6f3e; --i3:#cc5360; --none:#5f9672; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:520px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:1.15rem;margin:0;letter-spacing:.01em}
+h2{font-size:1.05rem;margin:0;text-wrap:balance}
+.sync{font-size:.78rem;color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#view{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daynav .when{text-align:center;flex:1;min-width:0}
+.daynav .when b{display:block;font-size:1.25rem;text-transform:capitalize}
+.round{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:1.2rem;display:grid;place-items:center}
+.round:disabled{opacity:.35;cursor:default}
+.big2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big{min-height:76px;border-radius:14px;border:2px solid var(--line);background:var(--surface);font-weight:700;font-size:1.05rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.big small{font-weight:400;font-size:.8rem;color:var(--muted)}
+.big.on.rien{border-color:var(--none);background:color-mix(in srgb,var(--none) 18%,var(--surface))}
+.big.on.mal{border-color:var(--i3);background:color-mix(in srgb,var(--i3) 14%,var(--surface))}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:42px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:.95rem;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:700}
+.chip .n{font-variant-numeric:tabular-nums;background:color-mix(in srgb,var(--accent-fg) 25%,transparent);border-radius:999px;padding:0 7px;font-size:.8rem}
+.int{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.int button{min-height:58px;border-radius:12px;border:2px solid var(--line);background:var(--bg);font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.int button small{font-weight:400;font-size:.75rem;color:var(--muted)}
+.int button.on[data-v="1"]{border-color:var(--i1);background:color-mix(in srgb,var(--i1) 20%,var(--surface))}
+.int button.on[data-v="2"]{border-color:var(--i2);background:color-mix(in srgb,var(--i2) 20%,var(--surface))}
+.int button.on[data-v="3"]{border-color:var(--i3);background:color-mix(in srgb,var(--i3) 20%,var(--surface))}
+.field{display:flex;flex-direction:column;gap:8px}
+textarea,input[type=text],input[type=date]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;box-sizing:border-box}
+textarea{min-height:70px;resize:vertical}
+.primary{background:var(--accent);color:var(--accent-fg);border-radius:12px;min-height:50px;padding:0 18px;font-weight:700}
+.ghost{border:1px solid var(--line);border-radius:12px;min-height:44px;padding:0 14px;background:var(--surface)}
+.linkbtn{color:var(--accent);font-weight:700;padding:6px 0;text-align:left}
+.banner{background:var(--soft);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.banner .actions{display:flex;flex-wrap:wrap;gap:8px}
+.saved{font-size:.85rem;color:var(--muted);text-align:center;min-height:1.2em}
+/* calendrier */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .h{font-size:.7rem;text-align:center;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.cell{aspect-ratio:1;max-width:100%;border-radius:10px;border:1px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;font-size:.95rem;position:relative;background:transparent}
+.cell.out{visibility:hidden}
+.cell.fut{opacity:.35;cursor:default}
+.cell.todo{border-color:var(--muted)}
+.cell.rien{border:1px solid transparent;background:color-mix(in srgb,var(--none) 22%,var(--surface))}
+.cell.i1{border:1px solid transparent;background:var(--i1);color:#1c1606}
+.cell.i2{border:1px solid transparent;background:var(--i2);color:#1d0d03}
+.cell.i3{border:1px solid transparent;background:var(--i3);color:#fff}
+.cell .pill{position:absolute;bottom:3px;width:6px;height:6px;border-radius:50%;background:currentColor}
+.cell .aura{position:absolute;top:2px;right:4px;font-size:.62rem;font-weight:700}
+.cell.today{outline:2px solid var(--accent);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+/* bilan */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{background:var(--bg);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+table.paper th,table.paper td{text-align:left;white-space:normal}
+table.paper td:first-child{width:2.2em;color:var(--muted)}
+table.paper td:nth-child(2){white-space:nowrap;font-weight:700}
+table.paper tr.hit td{background:color-mix(in srgb,var(--i2) 8%,transparent)}
+.warn{border-left:4px solid var(--i2);padding:8px 12px;background:color-mix(in srgb,var(--i2) 10%,var(--surface));border-radius:8px;font-size:.9rem}
+.seg{display:flex;background:var(--bg);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;min-height:38px;border-radius:9px;font-size:.9rem}
+.seg button.on{background:var(--surface);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.edit-list{display:flex;flex-direction:column;gap:8px}
+.edit-list .it{display:flex;gap:8px;align-items:center}
+.edit-list .it span{flex:1;min-width:0}
+.x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);color:var(--muted)}
+.add{display:flex;gap:8px}
+.add input{flex:1;min-width:0}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:5}
+nav.tabs button{min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.75rem;color:var(--muted);border-radius:10px;position:relative}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button.on{color:var(--accent);font-weight:700}
+nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--i3);color:#fff;font-size:.65rem;border-radius:999px;padding:0 6px;font-weight:700}
+.confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media (prefers-reduced-motion:no-preference){.big,.chip,.int button,.cell{transition:background-color .15s,border-color .15s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Carnet migraines</h1>
+    <span class="sync" id="sync">Données sur ce téléphone</span>
+  </header>
+  <main id="view"></main>
+</div>
+<nav class="tabs" id="tabs">
+  <button data-v="jour"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Jour</button>
+  <button data-v="calendrier"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendrier<span class="badge" id="badge" hidden></span></button>
+  <button data-v="bilan"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Bilan</button>
+  <button data-v="reglages"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Réglages</button>
+</nav>
+
+<script>
+const MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const JS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+const DUREES=["< 4 h","4 à 12 h","12 à 24 h","> 24 h"];
+const INT={1:"Légère",2:"Modérée",3:"Sévère"};
+const PLUS={1:"+",2:"++",3:"+++"};
+const INTD={1:"je fonctionne",2:"gêné",3:"au lit"};
+const EFF={oui:"Soulagé",partiel:"Un peu",non:"Pas soulagé"};
+const SYMP=["Nausées","Vomissements","Gêne à la lumière","Gêne au bruit"];
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const today=()=>iso(new Date());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const longDate=s=>{const d=parse(s);return `${JS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`};
+const relDate=s=>s===today()?"Aujourd'hui":s===addDays(today(),-1)?"Hier":s===addDays(today(),-2)?"Avant-hier":"";
+
+const DEF_SETTINGS={start:null,meds:["Ibuprofène","Kétoprofène","Paracétamol","Triptan"],triggers:["Stress","Manque de sommeil","Alcool","Repas sauté","Écrans","Règles","Météo"]};
+const OLD_MEDS='["Paracétamol","Ibuprofène","Triptan"]';
+function migrate(st){if(JSON.stringify(st.meds)===OLD_MEDS){st.meds=[...DEF_SETTINGS.meds];return true}return false}
+const S={pmonth:today().slice(0,7),days:{},settings:{...DEF_SETTINGS},view:"jour",cur:today(),catchup:false,month:today().slice(0,7),period:"3",details:false,confirm:null,savedMsg:""};
+
+/* ---------- stockage : copie locale + base privée Claude ---------- */
+const LK="carnet-migraines-v1";
+function loadLocal(){try{const o=JSON.parse(localStorage.getItem(LK)||"null");if(o){S.days=o.days||{};S.settings={...DEF_SETTINGS,...(o.settings||{})};migrate(S.settings)}}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LK,JSON.stringify({days:S.days,settings:S.settings}))}catch(e){}}
+let db=null,daysCol=null,setRef=null;const queue=new Map();let flushing=false;
+function setSync(t){document.getElementById("sync").textContent=t}
+function queueWrite(id){}
+async function flush(){
+  if(flushing||!db)return;flushing=true;
+  while(queue.size){
+    const id=queue.keys().next().value;queue.delete(id);
+    try{
+      if(id==="__settings")await setRef.set({...S.settings});
+      else if(S.days[id])await daysCol.doc(id).set({...S.days[id]});
+      else await daysCol.doc(id).delete();
+      setSync("Synchronisé");
+    }catch(e){
+      if(e&&e.code==="unavailable"){queue.set(id,true);await new Promise(r=>setTimeout(r,1500+Math.random()*1500))}
+      else{setSync("Non synchronisé (gardé sur ce téléphone)");}
+    }
+  }
+  flushing=false;
+}
+async function connect(){
+  if(!window.claude||!window.claude.use)return;
+  try{
+    const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!d||!u)return;const uid=await u.id();if(!uid)return;
+    db=d;setRef=db.doc("data/users/"+uid+"/reglages");
+    daysCol=db.doc("data/users/"+uid+"/carnet").collection("jours");
+    const ss=await setRef.get();
+    if(ss.exists){S.settings={...DEF_SETTINGS,...ss.data()};if(migrate(S.settings))queueWrite("__settings")}else queueWrite("__settings");
+    let first=true;
+    daysCol.onSnapshot(snap=>{
+      const remote={};snap.docs.forEach(x=>{remote[x.id]=x.data()});
+      if(first){first=false;for(const[k,v]of Object.entries(S.days)){if(!remote[k]||(remote[k].u||0)<(v.u||0))queueWrite(k)}}
+      for(const[k,v]of Object.entries(remote)){const l=S.days[k];if(!queue.has(k)&&(!l||(l.u||0)<=(v.u||0)))S.days[k]=JSON.parse(JSON.stringify(v))}
+      snap.docChanges().forEach(c=>{if(c.type==="removed"&&!queue.has(c.doc.id))delete S.days[c.doc.id]});
+      saveLocal();setSync("Synchronisé");softRender();
+    },()=>setSync("Gardé sur ce téléphone"));
+  }catch(e){setSync("Gardé sur ce téléphone")}
+}
+function putDay(d,entry){
+  if(entry){entry.d=d;entry.u=Date.now();S.days[d]=entry}else delete S.days[d];
+  saveLocal();queueWrite(d);
+}
+function putSettings(){saveLocal();queueWrite("__settings")}
+
+/* ---------- logique ---------- */
+function startDate(){
+  if(S.settings.start)return S.settings.start;
+  const ks=Object.keys(S.days).sort();return ks[0]||null;
+}
+function missingDays(){
+  const st=startDate();if(!st)return[];const out=[];const t=today();
+  for(let d=st;d<=t;d=addDays(d,1))if(!S.days[d])out.push(d);
+  return out;
+}
+function nextMissing(after){return missingDays().find(d=>!after||d>after)||null}
+function blankMal(){return{s:"mal",i:0,dur:"",m:{},eff:"",t:[],sy:[],note:""}}
+
+/* ---------- rendu ---------- */
+function softRender(){const a=document.activeElement;if(a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT"))return;render()}
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===S.view));
+  const n=missingDays().length,bd=document.getElementById("badge");bd.hidden=!n;bd.textContent=n>99?"99+":n;
+  const v=document.getElementById("view");
+  v.innerHTML={jour:vJour,calendrier:vCal,bilan:vBilan,reglages:vReg}[S.view]();
+}
+
+function vJour(){
+  const d=S.cur,e=S.days[d],t=today(),miss=missingDays(),st=startDate();
+  let h="";
+  if(!S.settings.start){
+    h+=`<div class="banner"><b>Depuis quand dois-tu remplir le carnet ?</b><span class="small muted">En général la date du rendez-vous chez le neurologue. Les jours vides depuis cette date seront à rattraper.</span>
+    <div class="add"><input type="date" id="startIn" max="${t}" value="${st||addDays(t,-30)}"><button class="primary" data-a="setStart">Valider</button></div></div>`;
+  }else if(miss.length&&!S.catchup){
+    h+=`<div class="banner"><b>${miss.length} jour${miss.length>1?"s":""} à rattraper</b><span class="small muted">Un jour à la fois, du plus ancien au plus récent. Pour un jour sans mal de tête, un seul appui suffit.</span><div class="actions"><button class="primary" data-a="catchup">Rattraper le retard</button></div></div>`;
+  }
+  const nb=Object.keys(S.days).length,lb=S.settings.lastBackup;
+  if(!S.catchup&&nb>=7&&(!lb||lb<=addDays(t,-30)))h+=`<div class="banner"><b>Pense à sauvegarder ton carnet</b><span class="small muted">${lb?"Ta dernière sauvegarde date de plus d'un mois.":"Tu n'as encore jamais fait de sauvegarde."} Tes données ne sont que dans ce téléphone.</span><div class="actions"><button class="ghost" data-a="goReg">Aller à la sauvegarde</button></div></div>`;
+  if(S.catchup)h+=`<div class="banner"><b>Rattrapage : encore ${miss.length} jour${miss.length>1?"s":""}</b><span class="small muted">Aide-toi de ton agenda, tes messages ou tes photos de ces jours-là. Si tu ne te souviens pas, mets ce qui te semble le plus probable.</span><div class="actions"><button class="ghost" data-a="stopCatch">Arrêter pour l'instant</button></div></div>`;
+  h+=`<div class="card"><div class="daynav"><button class="round" data-a="prev" aria-label="Jour précédent">‹</button>
+    <div class="when"><span class="lbl">${relDate(d)||"&nbsp;"}</span><b>${longDate(d)}</b></div>
+    <button class="round" data-a="next" aria-label="Jour suivant" ${d>=t?"disabled":""}>›</button></div>
+    <h2>Mal de tête ce jour-là ?</h2>
+    <div class="big2"><button class="big rien ${e&&e.s==="rien"?"on":""}" data-a="rien">Non, rien<small>journée sans</small></button>
+    <button class="big mal ${e&&e.s==="mal"?"on":""}" data-a="mal">Oui<small>migraine ou mal de tête</small></button></div>`;
+  if(e&&e.s==="mal"){
+    h+=`<div class="field"><span class="lbl">Intensité</span><div class="int">${[1,2,3].map(i=>`<button data-a="int" data-v="${i}" class="${e.i===i?"on":""}" aria-label="${INT[i]}"><span style="font-size:1.25rem;letter-spacing:.05em">${PLUS[i]}</span><small>${INT[i].toLowerCase()} · ${INTD[i]}</small></button>`).join("")}</div></div>
+    <div class="field"><span class="lbl">Aura</span><div class="row"><button class="chip ${(e.sy||[]).includes("Aura")?"on":""}" data-a="symp" data-v="Aura">A · avec aura</button></div></div>
+    <div class="field"><span class="lbl">Facteur déclenchant</span><div class="row">${S.settings.triggers.map(x=>`<button class="chip ${(e.t||[]).includes(x)?"on":""}" data-a="trig" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>
+    <div class="field"><span class="lbl">Durée</span><div class="row">${DUREES.map(x=>`<button class="chip ${e.dur===x?"on":""}" data-a="dur" data-v="${esc(x)}">${x}</button>`).join("")}</div></div>
+    <div class="field"><span class="lbl">Traitement de crise <span style="text-transform:none;letter-spacing:0;font-weight:400">(appuie plusieurs fois pour plusieurs prises)</span></span><div class="row">${S.settings.meds.map(m=>{const c=(e.m||{})[m]||0;return`<button class="chip ${c?"on":""}" data-a="med" data-v="${esc(m)}">${esc(m)}${c?`<span class="n">×${c}</span>`:""}</button>`}).join("")}${Object.keys(e.m||{}).length?`<button class="chip" data-a="medReset">Aucun</button>`:""}</div></div>`;
+    if(Object.keys(e.m||{}).length)h+=`<div class="field"><span class="lbl">Le traitement a marché ?</span><div class="row">${Object.entries(EFF).map(([k,l])=>`<button class="chip ${e.eff===k?"on":""}" data-a="eff" data-v="${k}">${l}</button>`).join("")}</div></div>`;
+    if(!S.details)h+=`<button class="linkbtn" data-a="details">+ Symptômes, note</button>`;
+    else h+=`<div class="field"><span class="lbl">Symptômes</span><div class="row">${SYMP.map(x=>`<button class="chip ${(e.sy||[]).includes(x)?"on":""}" data-a="symp" data-v="${esc(x)}">${x}</button>`).join("")}</div></div>
+      <div class="field"><label class="lbl" for="note">Note</label><textarea id="note" placeholder="Ex. réveillé avec, passé après la sieste…">${esc(e.note||"")}</textarea></div>`;
+  }
+  if(e)h+=`<div class="saved">${S.savedMsg||"Enregistré"} · <button class="linkbtn" style="display:inline;padding:0" data-a="clear">effacer ce jour</button></div>`;
+  if(S.catchup&&e&&e.s==="mal")h+=`<button class="primary" data-a="nextMissing">Jour suivant à remplir</button>`;
+  h+=`</div>`;
+  if(!S.catchup&&d!==t)h+=`<button class="ghost" data-a="goToday">Revenir à aujourd'hui</button>`;
+  return h;
+}
+
+function vCal(){
+  const[y,m]=S.month.split("-").map(Number),first=new Date(y,m-1,1),days=new Date(y,m,0).getDate();
+  const off=(first.getDay()+6)%7,t=today(),st=startDate();
+  let cells="";for(let i=0;i<off;i++)cells+=`<div class="cell out"></div>`;
+  let empty=0;
+  for(let n=1;n<=days;n++){
+    const d=`${y}-${pad(m)}-${pad(n)}`,e=S.days[d];let cl="cell";
+    if(d>t)cl+=" fut";else if(!e){if(st&&d>=st){cl+=" todo";empty++}}
+    else if(e.s==="rien")cl+=" rien";else cl+=" i"+(e.i||2);
+    if(d===t)cl+=" today";
+    const pill=(e&&e.s==="mal"&&Object.keys(e.m||{}).length?`<span class="pill" title="traitement"></span>`:"")+(e&&e.s==="mal"&&(e.sy||[]).includes("Aura")?`<span class="aura">A</span>`:"");
+    cells+=`<button class="${cl}" data-a="openDay" data-v="${d}" ${d>t?"disabled":""} aria-label="${longDate(d)}">${n}${pill}</button>`;
+  }
+  const md=Object.values(S.days).filter(e=>e.d.startsWith(S.month)&&e.s==="mal").length;
+  let h=`<div class="card"><div class="daynav"><button class="round" data-a="mPrev" aria-label="Mois précédent">‹</button>
+    <div class="when"><b>${MOIS[m-1]} ${y}</b><span class="small muted">${md} jour${md>1?"s":""} avec mal de tête</span></div>
+    <button class="round" data-a="mNext" aria-label="Mois suivant" ${S.month>=t.slice(0,7)?"disabled":""}>›</button></div>
+    <div class="cal">${["lun","mar","mer","jeu","ven","sam","dim"].map(x=>`<div class="h">${x}</div>`).join("")}${cells}</div>
+    <div class="legend"><span><i style="background:color-mix(in srgb,var(--none) 22%,var(--surface))"></i>rien</span><span><i style="background:var(--i1)"></i>légère</span><span><i style="background:var(--i2)"></i>modérée</span><span><i style="background:var(--i3)"></i>sévère</span><span><i style="border:1px dashed var(--muted)"></i>à remplir</span><span>• traitement</span><span>A aura</span></div>`;
+  if(empty){
+    if(S.confirm==="fillMonth")h+=`<div class="confirm"><span class="small">Marquer les ${empty} jours vides de ${MOIS[m-1]} comme « rien » ?</span><button class="primary" data-a="fillMonthOk">Oui, marquer</button><button class="ghost" data-a="cancel">Annuler</button></div>`;
+    else h+=`<button class="ghost" data-a="fillMonth">Les ${empty} jours vides de ce mois : rien</button><span class="small muted">À utiliser seulement si tu es sûr de n'avoir rien eu ces jours-là. Remplis d'abord les jours de crise en touchant la date.</span>`;
+  }
+  return h+`</div>`;
+}
+
+function periodDays(){
+  const t=today(),st=startDate();if(!st)return[];
+  let from=st;if(S.period!=="all"){const d=parse(t);d.setMonth(d.getMonth()-Number(S.period));from=iso(d)>st?addDays(iso(d),1):st}
+  const out=[];for(let d=from;d<=t;d=addDays(d,1))out.push(d);return out;
+}
+function summarize(list){
+  const r={total:list.length,filled:0,mal:0,i:{1:0,2:0,3:0},medDays:0,meds:{},medTakes:{},eff:{oui:0,partiel:0,non:0},trig:{},aura:0};
+  list.forEach(d=>{const e=S.days[d];if(!e)return;r.filled++;if(e.s!=="mal")return;r.mal++;if(e.i)r.i[e.i]++;
+    const ms=Object.entries(e.m||{});if(ms.length)r.medDays++;ms.forEach(([k,v])=>{r.meds[k]=(r.meds[k]||0)+1;r.medTakes[k]=(r.medTakes[k]||0)+v});
+    if(e.eff)r.eff[e.eff]++;(e.t||[]).forEach(x=>r.trig[x]=(r.trig[x]||0)+1);if((e.sy||[]).includes("Aura"))r.aura++});
+  return r;
+}
+function byMonth(list){const g={};list.forEach(d=>{(g[d.slice(0,7)]=g[d.slice(0,7)]||[]).push(d)});return Object.entries(g)}
+function cellPaper(e){
+  if(!e)return{i:"?",t:"",c:""};if(e.s!=="mal")return{i:"",t:"",c:""};
+  const a=(e.sy||[]).includes("Aura")?"A ":"";
+  return{i:a+(e.i?PLUS[e.i]:"·"),t:(e.t||[]).join(", "),c:Object.entries(e.m||{}).map(([k,v])=>v>1?`${k} ×${v}`:k).join(", ")};
+}
+function vPapier(){
+  const[y,m]=S.pmonth.split("-").map(Number),n=new Date(y,m,0).getDate(),t=today(),st=startDate();
+  let rows="";for(let j=1;j<=n;j++){const d=`${y}-${pad(m)}-${pad(j)}`;const c=d>t||(st&&d<st)?{i:"",t:"",c:""}:cellPaper(S.days[d]);
+    rows+=`<tr${S.days[d]&&S.days[d].s==="mal"?' class="hit"':""}><td>${j}</td><td>${esc(c.i)}</td><td>${esc(c.t)}</td><td>${esc(c.c)}</td></tr>`}
+  return `<div class="card"><div class="daynav"><button class="round" data-a="pPrev" aria-label="Mois précédent">‹</button><div class="when"><span class="lbl">Comme sur le papier</span><b>${MOIS[m-1]} ${y}</b></div><button class="round" data-a="pNext" aria-label="Mois suivant" ${S.pmonth>=t.slice(0,7)?"disabled":""}>›</button></div>
+  <div class="tbl"><table class="paper"><thead><tr><th>J</th><th>Intensité</th><th>Facteur déclenchant</th><th>Traitement de crise</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <span class="small muted">« ? » = jour pas encore rempli. Pratique pour recopier sur la feuille ou la montrer au rendez-vous.</span></div>`;
+}
+function vBilan(){
+  const list=periodDays();
+  let h=`<div class="seg">${[["1","1 mois"],["3","3 mois"],["6","6 mois"],["all","Tout"]].map(([k,l])=>`<button class="${S.period===k?"on":""}" data-a="period" data-v="${k}">${l}</button>`).join("")}</div>`;
+  if(!list.length)return h+`<div class="card"><h2>Rien à afficher pour l'instant</h2><p class="muted small" style="margin:0">Le bilan se remplit au fur et à mesure que tu notes tes journées dans l'onglet Jour.</p></div>`;
+  const r=summarize(list),months=Math.max(1,list.length/30.4);
+  h+=`<div class="card"><span class="lbl">Du ${longDate(list[0])} au ${longDate(list[list.length-1])}</span>
+  <div class="stats"><div class="stat"><b>${r.mal}</b><span>jours avec mal de tête</span></div>
+  <div class="stat"><b>${(r.mal/months).toFixed(1).replace(".",",")}</b><span>jours par mois en moyenne</span></div>
+  <div class="stat"><b>${r.medDays}</b><span>jours avec médicament</span></div>
+  <div class="stat"><b>${r.filled}/${r.total}</b><span>jours remplis</span></div></div>`;
+  if(r.filled<r.total)h+=`<span class="small muted">${r.total-r.filled} jour${r.total-r.filled>1?"s":""} non rempli${r.total-r.filled>1?"s":""} sur la période : les chiffres sont incomplets.</span>`;
+  h+=`<div class="tbl"><table><thead><tr><th>Mois</th><th>Jours</th><th>+</th><th>++</th><th>+++</th><th>Médic.</th></tr></thead><tbody>${byMonth(list).map(([k,ds])=>{const s=summarize(ds);const[yy,mm]=k.split("-");return`<tr><td>${MOIS[mm-1].slice(0,4)}. ${yy}</td><td>${s.mal}</td><td>${s.i[1]}</td><td>${s.i[2]}</td><td>${s.i[3]}</td><td>${s.medDays}</td></tr>`}).join("")}</tbody></table></div>`;
+  const heavy=byMonth(list).filter(([k,ds])=>summarize(ds).medDays>=10);
+  if(heavy.length)h+=`<div class="warn">Au moins 10 jours avec médicament dans ${heavy.length>1?"certains mois":"un mois"}. C'est un point que le neurologue regarde (risque de céphalée par abus de médicaments) : parles-en au prochain rendez-vous.</div>`;
+  const meds=Object.entries(r.meds).sort((a,b)=>b[1]-a[1]);
+  if(meds.length)h+=`<div class="field"><span class="lbl">Médicaments</span>${meds.map(([k,v])=>`<div class="small">${esc(k)} : ${v} jour${v>1?"s":""}, ${r.medTakes[k]} prise${r.medTakes[k]>1?"s":""}</div>`).join("")}${r.eff.oui+r.eff.partiel+r.eff.non?`<div class="small muted">Efficacité : soulagé ${r.eff.oui} fois, un peu ${r.eff.partiel}, pas soulagé ${r.eff.non}</div>`:""}</div>`;
+  const tr=Object.entries(r.trig).sort((a,b)=>b[1]-a[1]);
+  if(tr.length)h+=`<div class="field"><span class="lbl">Déclencheurs notés</span><div class="small">${tr.map(([k,v])=>`${esc(k)} (${v})`).join(", ")}</div></div>`;
+  h+=`</div>`+vPapier()+`<div class="card"><h2>Pour le neurologue</h2><span class="small muted">Le tableau jour par jour s'ouvre dans Excel, Numbers ou Google Sheets. Le résumé se colle dans un mail ou un message.</span>
+  <div class="row"><button class="primary" data-a="csv">Télécharger le tableau</button><button class="ghost" data-a="copy">Copier le résumé</button></div><span class="small muted" id="expMsg"></span>
+  <textarea id="sumTxt" readonly hidden></textarea></div>`;
+  return h;
+}
+
+function vReg(){
+  const st=S.settings;
+  const list=(key,label,ph)=>`<div class="card"><h2>${label}</h2><div class="edit-list">${st[key].map((x,i)=>`<div class="it"><span>${esc(x)}</span><button class="x" data-a="del" data-k="${key}" data-v="${i}" aria-label="Retirer ${esc(x)}">×</button></div>`).join("")}</div>
+    <div class="add"><input type="text" id="add-${key}" placeholder="${ph}"><button class="ghost" data-a="addItem" data-k="${key}">Ajouter</button></div></div>`;
+  return `<div class="card"><h2>Début du carnet</h2><span class="small muted">Les jours vides à partir de cette date comptent comme « à rattraper ».</span>
+    <div class="add"><input type="date" id="startIn" max="${today()}" value="${st.start||""}"><button class="ghost" data-a="setStart">Enregistrer</button></div></div>
+  ${list("meds","Mes médicaments","Ex. Almotriptan 12,5 mg")}
+  ${list("triggers","Déclencheurs proposés","Ex. Chaleur")}
+  <div class="card"><h2>Sauvegarde</h2><span class="small muted">Ton carnet n'existe que dans ce téléphone. Fais une sauvegarde de temps en temps et range-la dans Fichiers (iCloud) : c'est elle qui te permet de tout récupérer si tu changes de téléphone ou si Safari efface ses données.${st.lastBackup?` Dernière sauvegarde : ${longDate(st.lastBackup)}.`:" Aucune sauvegarde pour l'instant."}</span>
+  <div class="row"><button class="ghost" data-a="backup">Sauvegarder mes données</button><label class="ghost" style="display:inline-flex;align-items:center;cursor:pointer">Restaurer un fichier<input type="file" id="restoreIn" accept=".json,application/json" hidden></label></div><span class="small muted" id="bkMsg"></span></div>
+  <div class="card"><h2>Rappel tous les soirs</h2>
+  <ol class="steps small"><li>Ouvre l'app <b>Raccourcis</b>, onglet <b>Automatisation</b>, puis <b>+</b> et <b>Heure de la journée</b>.</li><li>Choisis 21 h 30, chaque jour, et <b>Exécuter immédiatement</b>.</li><li>Ajoute l'action <b>Ouvrir des URL</b> avec l'adresse de cette page.</li></ol>
+  <span class="small muted">Plus simple : dans l'app Rappels, crée un rappel « Carnet migraines » qui se répète chaque jour et colle l'adresse de la page dans le champ URL.</span></div>`;
+}
+
+/* ---------- actions ---------- */
+async function saveFile(name,data,type){
+  const blob=new Blob([data],{type});
+  try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return "ok"}}
+  catch(e){if(e&&e.name==="AbortError")return "cancel"}
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);return "ok";
+}
+function cur(){return S.days[S.cur]}
+function edit(fn){const e=JSON.parse(JSON.stringify(cur()||blankMal()));fn(e);putDay(S.cur,e);S.savedMsg="Enregistré";render()}
+function toggleIn(arr,v){const i=arr.indexOf(v);i<0?arr.push(v):arr.splice(i,1)}
+function buildSummary(){
+  const list=periodDays(),r=summarize(list);
+  let t=`Carnet migraines, du ${longDate(list[0])} au ${longDate(list[list.length-1])}\n`;
+  t+=`Jours remplis : ${r.filled} sur ${r.total}\nJours avec mal de tête : ${r.mal} (+ : ${r.i[1]}, ++ : ${r.i[2]}, +++ : ${r.i[3]}${r.aura?`, dont ${r.aura} avec aura`:""})\nJours avec médicament : ${r.medDays}\n\nPar mois :\n`;
+  byMonth(list).forEach(([k,ds])=>{const s=summarize(ds),[yy,mm]=k.split("-");t+=`- ${MOIS[mm-1]} ${yy} : ${s.mal} jours de mal de tête, ${s.medDays} jours avec médicament, ${s.i[3]} sévères${ds.length<new Date(yy,mm,0).getDate()?" (mois partiel)":""}\n`});
+  const meds=Object.entries(r.meds);if(meds.length)t+=`\nMédicaments : ${meds.map(([k,v])=>`${k} ${v} j (${r.medTakes[k]} prises)`).join(", ")}\n`;
+  if(r.eff.oui+r.eff.partiel+r.eff.non)t+=`Efficacité : soulagé ${r.eff.oui}, un peu ${r.eff.partiel}, pas soulagé ${r.eff.non}\n`;
+  const tr=Object.entries(r.trig);if(tr.length)t+=`Déclencheurs : ${tr.map(([k,v])=>`${k} ${v}`).join(", ")}\n`;
+  return t;
+}
+function buildCsv(){
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const rows=[["Date","Jour","Mal de tête","Aura","Intensité","Facteur déclenchant","Traitement de crise","Durée","Efficacité","Symptômes","Note"]];
+  periodDays().forEach(d=>{const e=S.days[d];const dd=parse(d);
+    if(!e)rows.push([d,JS[dd.getDay()],"non rempli","","","","","","","",""]);
+    else if(e.s==="rien")rows.push([d,JS[dd.getDay()],"non","","","","","","","",""]);
+    else rows.push([d,JS[dd.getDay()],"oui",(e.sy||[]).includes("Aura")?"A":"",e.i?`${PLUS[e.i]} (${INT[e.i]})`:"",(e.t||[]).join(", "),Object.entries(e.m||{}).map(([k,v])=>v>1?`${k} x${v}`:k).join(", "),e.dur||"",e.eff?EFF[e.eff]:"",(e.sy||[]).filter(x=>x!=="Aura").join(", "),e.note||""])});
+  return "﻿"+rows.map(r=>r.map(q).join(";")).join("\r\n");
+}
+document.addEventListener("click",async ev=>{
+  const tab=ev.target.closest("#tabs button");if(tab){S.view=tab.dataset.v;S.confirm=null;if(S.view!=="jour")S.catchup=false;render();scrollTo(0,0);return}
+  const b=ev.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+  switch(a){
+    case "prev":S.cur=addDays(S.cur,-1);S.details=false;S.savedMsg="";break;
+    case "next":if(S.cur<today())S.cur=addDays(S.cur,1);S.details=false;S.savedMsg="";break;
+    case "goToday":S.cur=today();break;
+    case "rien":putDay(S.cur,{s:"rien"});S.savedMsg="Enregistré";
+      if(S.catchup){const n=nextMissing();if(n){S.cur=n;S.savedMsg=""}else{S.catchup=false;S.cur=today()}}break;
+    case "mal":if(!cur()||cur().s!=="mal")putDay(S.cur,blankMal());S.savedMsg="";break;
+    case "int":edit(e=>e.i=Number(v));return;
+    case "dur":edit(e=>e.dur=e.dur===v?"":v);return;
+    case "med":edit(e=>{e.m=e.m||{};e.m[v]=((e.m[v]||0)%4)+1;});return;
+    case "medReset":edit(e=>{e.m={};e.eff=""});return;
+    case "eff":edit(e=>e.eff=e.eff===v?"":v);return;
+    case "trig":edit(e=>{e.t=e.t||[];toggleIn(e.t,v)});return;
+    case "symp":edit(e=>{e.sy=e.sy||[];toggleIn(e.sy,v)});return;
+    case "details":S.details=true;break;
+    case "clear":putDay(S.cur,null);S.savedMsg="";break;
+    case "catchup":{const n=nextMissing();if(n){S.catchup=true;S.cur=n;S.details=false}break}
+    case "nextMissing":{const n=nextMissing();S.details=false;S.savedMsg="";if(n)S.cur=n;else{S.catchup=false;S.cur=today()}break}
+    case "stopCatch":S.catchup=false;S.cur=today();break;
+    case "setStart":{const x=document.getElementById("startIn").value;if(x){S.settings.start=x;putSettings()}break}
+    case "openDay":S.cur=v;S.view="jour";S.details=false;S.savedMsg="";scrollTo(0,0);break;
+    case "mPrev":case "mNext":{const[y,m]=S.month.split("-").map(Number),d=new Date(y,m-1+(a==="mPrev"?-1:1),1);S.month=iso(d).slice(0,7);S.confirm=null;break}
+    case "fillMonth":S.confirm="fillMonth";break;
+    case "cancel":S.confirm=null;break;
+    case "fillMonthOk":{const[y,m]=S.month.split("-").map(Number),st=startDate(),t=today();for(let n=1;n<=new Date(y,m,0).getDate();n++){const d=`${y}-${pad(m)}-${pad(n)}`;if(d<=t&&(!st||d>=st)&&!S.days[d])putDay(d,{s:"rien"})}S.confirm=null;break}
+    case "period":S.period=v;break;
+    case "goReg":S.view="reglages";scrollTo(0,0);break;
+    case "backup":{const msg=document.getElementById("bkMsg");const r=await saveFile(`carnet-migraines-sauvegarde-${today()}.json`,JSON.stringify({v:1,days:S.days,settings:S.settings},null,1),"application/json");
+      if(r==="ok"){S.settings.lastBackup=today();saveLocal();msg.textContent="Sauvegarde faite. Choisis « Enregistrer dans Fichiers » pour la garder dans iCloud."}else msg.textContent="Sauvegarde annulée.";return}
+    case "pPrev":case "pNext":{const[y,m]=S.pmonth.split("-").map(Number),d=new Date(y,m-1+(a==="pPrev"?-1:1),1);S.pmonth=iso(d).slice(0,7);break}
+    case "del":S.settings[b.dataset.k].splice(Number(v),1);putSettings();break;
+    case "addItem":{const k=b.dataset.k,inp=document.getElementById("add-"+k),x=inp.value.trim();if(x&&!S.settings[k].includes(x)){S.settings[k].push(x);putSettings()}break}
+    case "csv":{const msg=document.getElementById("expMsg");const r=await saveFile(`carnet-migraines-${today()}.csv`,buildCsv(),"text/csv");msg.textContent=r==="ok"?"Tableau prêt.":"Envoi annulé.";return}
+    case "copy":{const txt=buildSummary(),msg=document.getElementById("expMsg");try{await navigator.clipboard.writeText(txt);msg.textContent="Résumé copié."}catch(e){const ta=document.getElementById("sumTxt");ta.hidden=false;ta.value=txt;ta.focus();ta.select();msg.textContent="Sélectionne le texte ci-dessous et copie-le."}return}
+  }
+  render();
+});
+document.addEventListener("input",ev=>{
+  if(ev.target.id==="note"){clearTimeout(window._nt);const val=ev.target.value,day=S.cur;window._nt=setTimeout(()=>{const e=JSON.parse(JSON.stringify(S.days[day]||blankMal()));e.note=val;putDay(day,e)},700)}
+});
+document.addEventListener("change",ev=>{
+  if(ev.target.id!=="restoreIn"||!ev.target.files[0])return;const f=ev.target.files[0];
+  f.text().then(txt=>{const o=JSON.parse(txt);if(!o||typeof o.days!=="object")throw 0;let n=0;
+    for(const[k,v]of Object.entries(o.days)){if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&v&&(!S.days[k]||(S.days[k].u||0)<(v.u||0))){S.days[k]=v;saveLocal();queueWrite(k);n++}}
+    if(o.settings){S.settings={...DEF_SETTINGS,...o.settings};putSettings()}
+    render();const m=document.getElementById("bkMsg");if(m)m.textContent=`${n} jour${n>1?"s":""} restauré${n>1?"s":""}.`;
+  }).catch(()=>{const m=document.getElementById("bkMsg");if(m)m.textContent="Ce fichier n'est pas une sauvegarde du carnet."});
+});
+document.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&ev.target.id&&ev.target.id.startsWith("add-")){ev.preventDefault();ev.target.nextElementSibling.click()}});
+
+const h=location.hash.slice(1);if(["calendrier","bilan","reglages"].includes(h))S.view=h;
+loadLocal();render();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
